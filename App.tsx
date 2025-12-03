@@ -24,7 +24,6 @@ const App: React.FC = () => {
 
   // Simulation & Logs
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [isLogsOpen, setIsLogsOpen] = useState(true);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<string>(TEST_CASES[0].id);
   const [isSimulating, setIsSimulating] = useState(false);
 
@@ -37,7 +36,7 @@ const App: React.FC = () => {
   const addLog = (action: LogEntry['action'], message: string, details?: string) => {
     const entry: LogEntry = {
       id: Date.now() + Math.random(),
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" }),
       action,
       message,
       details
@@ -193,53 +192,63 @@ const App: React.FC = () => {
   const maxBucketCount = Math.max(1, Math.max(...Object.values(freeBuckets)));
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8 font-inter text-slate-800">
+    <div className="min-h-screen bg-[#f8fafc] p-4 text-slate-800 font-inter overflow-hidden flex flex-col h-screen">
       
       {/* Header & Dashboard */}
-      <header className="flex flex-col gap-6">
+      <header className="flex-none flex flex-col gap-4 mb-4">
         {/* Title Row */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
-                   <Cpu className="w-8 h-8 text-white" />
+        <div className="flex items-center justify-between px-4 py-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-600 rounded-lg shadow-lg shadow-blue-200">
+                   <Cpu className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900 tracking-tight">内存分配算法模拟系统</h1>
-                  <p className="text-slate-500 text-sm mt-1 flex items-center gap-2 font-medium">
-                     <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none">内存分配算法模拟系统</h1>
+                  <p className="text-slate-500 text-xs mt-1 flex items-center gap-1.5 font-medium">
+                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
                      实验10: 连续空间存储管理
                   </p>
+                </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+                 {/* Mini Legend */}
+                <div className="hidden md:flex gap-4 text-xs font-medium text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                    <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-sm"></span> 已分配
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 bg-emerald-100 border border-emerald-200 pattern-diagonal-lines rounded-sm"></span> 空闲区
+                    </div>
                 </div>
             </div>
         </div>
 
         {/* Visual Metrics Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-24">
             
             {/* Metric 1: Memory Usage */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between group hover:border-blue-300 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-2 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                        <PieChart className="w-4 h-4 text-blue-500" />
+            <div className="bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center group hover:border-blue-300 transition-colors">
+                <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wider">
+                        <PieChart className="w-3.5 h-3.5 text-blue-500" />
                         内存使用率
                     </div>
-                    <span className="text-2xl font-black text-slate-800 font-mono">
+                    <span className="text-xl font-black text-slate-800 font-mono">
                         {usagePercent}%
                     </span>
                 </div>
                 
-                <div className="space-y-3">
-                    <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                <div className="space-y-1.5">
+                    <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
                         <motion.div 
                             className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 relative"
                             initial={{ width: 0 }}
                             animate={{ width: `${usagePercent}%` }}
                             transition={{ type: "spring", stiffness: 50, damping: 15 }}
-                        >
-                            <div className="absolute inset-0 bg-white/20" />
-                        </motion.div>
+                        />
                     </div>
-                    <div className="flex justify-between text-[11px] font-medium text-slate-400 font-mono">
+                    <div className="flex justify-between text-[10px] font-medium text-slate-400 font-mono">
                         <span>{totalAllocated.toLocaleString()} B 已用</span>
                         <span>{TOTAL_MEMORY.toLocaleString()} B 总计</span>
                     </div>
@@ -247,27 +256,26 @@ const App: React.FC = () => {
             </div>
 
             {/* Metric 2: Fragmentation */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between group hover:border-amber-300 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                     <div className="flex items-center gap-2 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                        <Activity className="w-4 h-4 text-amber-500" />
+            <div className="bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center group hover:border-amber-300 transition-colors">
+                <div className="flex justify-between items-center mb-2">
+                     <div className="flex items-center gap-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wider">
+                        <Activity className="w-3.5 h-3.5 text-amber-500" />
                         外部碎片率
                     </div>
-                     <span className={`text-2xl font-black font-mono ${fragmentation > 0.5 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                     <span className={`text-xl font-black font-mono ${fragmentation > 0.5 ? 'text-amber-500' : 'text-emerald-500'}`}>
                         {fragPercent}%
                     </span>
                 </div>
 
-                <div className="space-y-3">
-                     <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner flex relative">
-                        {/* Background Stripes to indicate danger zones could go here */}
+                <div className="space-y-1.5">
+                     <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner flex relative">
                         <motion.div 
                             className={`h-full ${fragmentation > 0.5 ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-emerald-400 to-emerald-500'}`}
                             animate={{ width: `${fragPercent}%` }}
                             transition={{ type: "spring", stiffness: 50 }}
                         />
                      </div>
-                     <div className="flex justify-between text-[11px] font-medium text-slate-400">
+                     <div className="flex justify-between text-[10px] font-medium text-slate-400">
                         <span className={fragmentation > 0.5 ? "text-amber-600 font-bold" : "text-emerald-600 font-bold"}>
                             {fragmentation > 0.5 ? "⚠ 建议紧凑" : "✔ 状态良好"}
                         </span>
@@ -277,78 +285,63 @@ const App: React.FC = () => {
             </div>
 
             {/* Metric 3: Free Space Distribution (Histogram) */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden">
-                <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                        <BarChart3 className="w-4 h-4 text-indigo-500" />
-                        空闲块分布 (个)
-                    </div>
+            <div className="bg-white px-5 py-2 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-end overflow-hidden pb-1">
+                <div className="flex items-center gap-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wider mb-1">
+                    <BarChart3 className="w-3.5 h-3.5 text-indigo-500" />
+                    空闲块分布
                 </div>
                 
-                <div className="flex items-end justify-between h-20 px-2 gap-2">
+                <div className="flex items-end justify-between h-10 gap-2 mb-1">
                     {[
-                      { label: '<5K', count: freeBuckets.tiny, color: 'bg-red-400', tip: '碎片 (极小)' },
-                      { label: '5-15K', count: freeBuckets.small, color: 'bg-amber-400', tip: '小型' },
-                      { label: '15-50K', count: freeBuckets.medium, color: 'bg-blue-400', tip: '中型' },
-                      { label: '>50K', count: freeBuckets.large, color: 'bg-emerald-400', tip: '大型 (优质)' },
+                      { label: '<5K', count: freeBuckets.tiny, color: 'bg-red-400' },
+                      { label: '5-15K', count: freeBuckets.small, color: 'bg-amber-400' },
+                      { label: '15-50K', count: freeBuckets.medium, color: 'bg-blue-400' },
+                      { label: '>50K', count: freeBuckets.large, color: 'bg-emerald-400' },
                     ].map((bucket, i) => (
                       <div key={i} className="flex flex-col items-center justify-end h-full w-full group relative">
-                         {/* Bar */}
                          <motion.div 
                            initial={{ height: 0 }}
-                           animate={{ height: `${Math.max(15, (bucket.count / maxBucketCount) * 100)}%` }}
-                           className={`w-full rounded-t-sm ${bucket.color} opacity-80 group-hover:opacity-100 transition-opacity relative`}
-                         >
-                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-600">
-                              {bucket.count > 0 ? bucket.count : ''}
-                            </span>
-                         </motion.div>
-                         {/* Label */}
-                         <div className="text-[9px] font-mono text-slate-400 mt-1">{bucket.label}</div>
-                         
-                         {/* Tooltip */}
-                         <div className="absolute -top-8 bg-slate-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10 whitespace-nowrap">
-                            {bucket.tip}: {bucket.count}个
+                           animate={{ height: `${Math.max(10, (bucket.count / maxBucketCount) * 100)}%` }}
+                           className={`w-full rounded-sm ${bucket.color} opacity-80`}
+                         />
+                         <div className="text-[8px] font-mono text-slate-400 mt-0.5">{bucket.label}</div>
+                         <div className="absolute bottom-6 bg-slate-800 text-white text-[9px] py-0.5 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            {bucket.count}
                          </div>
                       </div>
                     ))}
-                </div>
-
-                <div className="mt-2 pt-2 border-t border-slate-100 flex justify-between text-[10px] text-slate-400 font-medium">
-                     <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 已分配: {allocatedList.length}</span>
-                     <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 空闲: {freeList.length}</span>
                 </div>
             </div>
         </div>
       </header>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Grid - 3 Column Layout */}
+      <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-4 min-h-0">
         
-        {/* Left Control Sidebar */}
-        <div className="lg:col-span-3 space-y-6">
+        {/* Left Col: Controls (20%) */}
+        <div className="xl:col-span-2 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
             
             {/* Algorithm Selection */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <SectionHeader icon={<Settings />} title="分配算法" />
-                <div className="space-y-2">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <SectionHeader icon={<Settings />} title="算法选择" />
+                <div className="space-y-1.5">
                     {(['First Fit', 'Best Fit', 'Worst Fit', 'Next Fit'] as AlgorithmType[]).map((algo) => (
                         <button
                             key={algo}
                             onClick={() => setAlgorithm(algo)}
                             disabled={isSimulating}
-                            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all relative overflow-hidden group ${
+                            className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all relative overflow-hidden group ${
                                 algorithm === algo 
-                                ? 'bg-slate-800 text-white shadow-lg' 
+                                ? 'bg-slate-800 text-white shadow-md' 
                                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                             }`}
                         >
                             <div className="relative z-10 flex justify-between items-center">
-                                {algo === 'First Fit' && '最先适应 (First Fit)'}
-                                {algo === 'Best Fit' && '最佳适应 (Best Fit)'}
-                                {algo === 'Worst Fit' && '最坏适应 (Worst Fit)'}
-                                {algo === 'Next Fit' && '循环首次 (Next Fit)'}
-                                {algorithm === algo && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                                {algo === 'First Fit' && '最先适应'}
+                                {algo === 'Best Fit' && '最佳适应'}
+                                {algo === 'Worst Fit' && '最坏适应'}
+                                {algo === 'Next Fit' && '循环首次'}
+                                {algorithm === algo && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                             </div>
                         </button>
                     ))}
@@ -356,31 +349,31 @@ const App: React.FC = () => {
             </div>
 
             {/* Manual Operations */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-5 flex-1">
                 
                 {/* Alloc */}
                 <div>
-                    <SectionHeader icon={<Plus />} title="分配内存" />
-                    <div className="flex gap-2 mb-2">
+                    <SectionHeader icon={<Plus />} title="分配" />
+                    <div className="grid grid-cols-3 gap-2 mb-2">
                         <input 
                             type="text" 
                             value={allocName}
                             onChange={(e) => setAllocName(e.target.value.toUpperCase())}
                             placeholder="名" 
-                            className="w-1/3 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-center uppercase font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            className="col-span-1 px-2 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-center uppercase font-bold focus:ring-1 focus:ring-blue-500 outline-none"
                         />
                         <input 
                             type="number" 
                             value={allocSize}
                             onChange={(e) => setAllocSize(e.target.value)}
-                            placeholder="大小 (Bytes)" 
-                            className="w-2/3 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            placeholder="大小" 
+                            className="col-span-2 px-2 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-blue-500 outline-none"
                         />
                     </div>
                     <button 
                         onClick={() => handleAlloc(allocName, allocSize)}
                         disabled={isSimulating}
-                        className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white py-2.5 rounded-lg text-sm font-bold shadow-md shadow-blue-200 transition-all"
+                        className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white py-2 rounded-lg text-xs font-bold shadow-md shadow-blue-200 transition-all"
                     >
                         执行分配
                     </button>
@@ -390,20 +383,20 @@ const App: React.FC = () => {
 
                 {/* Dealloc */}
                 <div>
-                    <SectionHeader icon={<Trash2 />} title="回收内存" />
+                    <SectionHeader icon={<Trash2 />} title="回收" />
                     <div className="flex gap-2 mb-2">
                         <input 
                             type="text" 
                             value={deallocName}
                             onChange={(e) => setDeallocName(e.target.value.toUpperCase())}
                             placeholder="作业名 (如 A)" 
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm uppercase font-bold focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                            className="w-full px-2 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs uppercase font-bold focus:ring-1 focus:ring-red-500 outline-none"
                         />
                     </div>
                     <button 
                         onClick={() => handleDealloc(deallocName)}
                         disabled={isSimulating}
-                        className="w-full bg-white border border-slate-200 text-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 py-2.5 rounded-lg text-sm font-bold transition-all"
+                        className="w-full bg-white border border-slate-200 text-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 py-2 rounded-lg text-xs font-bold transition-all"
                     >
                         执行回收
                     </button>
@@ -413,141 +406,112 @@ const App: React.FC = () => {
 
                 {/* Compact */}
                 <div>
-                    <SectionHeader icon={<LayoutTemplate />} title="内存紧凑 (扩展功能)" />
+                    <SectionHeader icon={<LayoutTemplate />} title="整理" />
                     <button 
                         onClick={handleCompact}
                         disabled={isSimulating || allocatedList.length === 0}
-                        className="w-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:shadow-inner py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
+                        className="w-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:shadow-inner py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2"
                     >
-                        <LayoutTemplate className="w-4 h-4" /> 整理碎片
+                        整理碎片
                     </button>
                 </div>
             </div>
+        </div>
 
-            {/* Test Case Runner */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-5 rounded-2xl shadow-lg text-white">
-                <SectionHeader icon={<Play className="text-emerald-400" />} title="自动化测试" className="text-slate-200" />
+        {/* Center Col: Visuals (60%) */}
+        <div className="xl:col-span-7 flex flex-col gap-4 min-h-0">
+            {/* Visualization Bar */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex-none">
+                <SectionHeader icon={<Database />} title="内存空间可视化" />
+                <MemoryBar freeList={freeList} allocatedList={allocatedList} />
+            </div>
+
+            {/* Stats Tables - Fill remaining height */}
+            <div className="flex-1 min-h-0">
+                <StatsPanel freeList={freeList} allocatedList={allocatedList} />
+            </div>
+        </div>
+
+        {/* Right Col: Automation & Logs (20%) */}
+        <div className="xl:col-span-3 flex flex-col gap-4 min-h-0">
+             
+             {/* Test Case Runner */}
+             <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-4 rounded-xl shadow-lg text-white flex-none">
+                <SectionHeader icon={<Play className="text-emerald-400" />} title="自动化测试" className="text-slate-200 mb-2" />
                 
-                <div className="mb-4">
-                  <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">选择案例</label>
+                <div className="mb-3">
                   <select 
                     value={selectedTestCaseId}
                     onChange={(e) => setSelectedTestCaseId(e.target.value)}
                     disabled={isSimulating}
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg p-2 outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 outline-none focus:border-emerald-500 transition-colors"
                   >
                     {TEST_CASES.map(tc => (
                       <option key={tc.id} value={tc.id}>{tc.name}</option>
                     ))}
                   </select>
-                  <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
-                    {TEST_CASES.find(t => t.id === selectedTestCaseId)?.description}
-                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                     <button 
                         onClick={runSimulation}
                         disabled={isSimulating}
-                        className={`col-span-2 ${isSimulating ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-900/20'} py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2`}
+                        className={`col-span-2 ${isSimulating ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-900/20'} py-2 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2`}
                     >
-                        {isSimulating ? <RotateCcw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
+                        {isSimulating ? <RotateCcw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
                         {isSimulating ? '执行中...' : '开始运行'}
                     </button>
                     <button 
                         onClick={resetMemory}
                         disabled={isSimulating}
-                        className="col-span-2 bg-white/10 hover:bg-white/20 text-slate-200 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2"
+                        className="col-span-2 bg-white/10 hover:bg-white/20 text-slate-200 py-1.5 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-2"
                     >
                         <RotateCcw className="w-3 h-3" /> 重置系统
                     </button>
                  </div>
             </div>
-        </div>
 
-        {/* Right Content */}
-        <div className="lg:col-span-9 space-y-6">
-            
-            {/* Visualization Bar */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
-                        内存空间可视化
-                    </h2>
-                    <div className="flex gap-6 text-xs font-medium text-slate-600">
-                        <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded shadow-sm"></span> 已分配作业
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 bg-emerald-100 border border-emerald-200 pattern-diagonal-lines rounded"></span> 空闲区
-                        </div>
-                         <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 bg-white border border-slate-200 rounded"></span> 总: {TOTAL_MEMORY}B
-                        </div>
-                    </div>
-                </div>
-                
-                <MemoryBar freeList={freeList} allocatedList={allocatedList} />
-            </div>
-
-            {/* Stats Tables */}
-            <StatsPanel freeList={freeList} allocatedList={allocatedList} />
-
-            {/* Logs Panel (Collapsible) */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                <div 
-                    className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors"
-                    onClick={() => setIsLogsOpen(!isLogsOpen)}
-                >
+            {/* Logs Panel (Fixed Height / Fill) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0">
+                <div className="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-none">
                     <div className="flex items-center gap-2">
-                        <Terminal className="w-5 h-5 text-slate-500" />
-                        <span className="font-bold text-slate-700">系统操作日志</span>
-                        <span className="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full">{logs.length}</span>
+                        <Terminal className="w-4 h-4 text-slate-500" />
+                        <span className="font-bold text-slate-700 text-xs uppercase tracking-wider">系统操作日志</span>
                     </div>
-                    {isLogsOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                    <span className="bg-slate-200 text-slate-600 text-[10px] font-mono px-2 py-0.5 rounded-full">{logs.length}</span>
                 </div>
                 
-                <AnimatePresence>
-                    {isLogsOpen && (
-                        <motion.div 
-                            initial={{ height: 0 }}
-                            animate={{ height: 240 }}
-                            exit={{ height: 0 }}
-                            className="bg-slate-900 overflow-hidden"
-                        >
-                            <div className="h-full overflow-y-auto p-4 font-mono text-xs space-y-1.5 custom-scrollbar">
-                                {logs.length === 0 && <div className="text-slate-600 italic text-center py-10">暂无日志记录...</div>}
-                                {logs.map((log) => (
-                                    <div key={log.id} className="flex gap-4 border-l-2 border-slate-700 pl-3 py-0.5 hover:bg-white/5 transition-colors rounded-r">
-                                        <span className="text-slate-500 w-16 shrink-0">{log.timestamp}</span>
-                                        <span className={`font-bold w-24 shrink-0 
-                                            ${log.action === 'ALLOCATE' ? 'text-blue-400' : ''}
-                                            ${log.action === 'DEALLOCATE' ? 'text-emerald-400' : ''}
-                                            ${log.action === 'COMPACT' ? 'text-indigo-400' : ''}
-                                            ${log.action === 'ERROR' ? 'text-red-400' : ''}
-                                            ${log.action === 'INFO' ? 'text-amber-400' : ''}
-                                        `}>
-                                            {log.action}
-                                        </span>
-                                        <span className="text-slate-300">{log.message}</span>
-                                        {log.details && <span className="text-slate-500 hidden sm:inline"> | {log.details}</span>}
-                                    </div>
-                                ))}
+                <div className="flex-1 overflow-hidden bg-slate-900">
+                    <div className="h-full overflow-y-auto p-3 font-mono text-[11px] space-y-1 custom-scrollbar">
+                        {logs.length === 0 && <div className="text-slate-600 italic text-center py-10">暂无日志...</div>}
+                        {logs.map((log) => (
+                            <div key={log.id} className="flex gap-2 border-l-2 border-slate-700 pl-2 py-0.5 hover:bg-white/5 transition-colors rounded-r">
+                                <span className="text-slate-600 shrink-0 select-none">{log.timestamp.split(' ')[0]}</span>
+                                <span className={`font-bold shrink-0 
+                                    ${log.action === 'ALLOCATE' ? 'text-blue-400' : ''}
+                                    ${log.action === 'DEALLOCATE' ? 'text-emerald-400' : ''}
+                                    ${log.action === 'COMPACT' ? 'text-indigo-400' : ''}
+                                    ${log.action === 'ERROR' ? 'text-red-400' : ''}
+                                    ${log.action === 'INFO' ? 'text-amber-400' : ''}
+                                `}>
+                                    [{log.action.substring(0,4)}]
+                                </span>
+                                <span className="text-slate-300 break-all">{log.message}</span>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
+
       </div>
     </div>
   );
 };
 
 const SectionHeader = ({ icon, title, className = 'text-slate-400' }: { icon: React.ReactNode, title: string, className?: string }) => (
-    <h2 className={`text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${className}`}>
-        {React.cloneElement(icon as React.ReactElement, { className: "w-4 h-4" })}
+    <h2 className={`text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-2 ${className}`}>
+        {React.cloneElement(icon as React.ReactElement, { className: "w-3.5 h-3.5" })}
         {title}
     </h2>
 );
