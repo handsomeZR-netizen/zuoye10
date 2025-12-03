@@ -1,0 +1,5 @@
+{
+  "name": "MemoryAlloc Sim Pro",
+  "description": "A high-performance visualization of continuous memory allocation algorithms (First Fit, Best Fit, Worst Fit, Next Fit) with linked list management simulation.",
+  "requestFramePermissions": []
+}
