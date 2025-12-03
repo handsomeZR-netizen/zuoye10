@@ -6,7 +6,8 @@ import { StatsPanel } from './components/StatsPanel';
 import { 
   Play, RotateCcw, Plus, Trash2, Cpu, Terminal, 
   Settings, CheckCircle2, ChevronDown, ChevronUp,
-  LayoutTemplate, PieChart, Activity, BarChart3, Database
+  LayoutTemplate, PieChart, Activity, BarChart3, Database,
+  Zap, Turtle, Rabbit
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,6 +27,13 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<string>(TEST_CASES[0].id);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [delay, setDelay] = useState(800); // Speed control state (ms)
+  
+  // Ref to track delay immediately inside async timeouts
+  const delayRef = useRef(delay);
+  useEffect(() => {
+    delayRef.current = delay;
+  }, [delay]);
 
   // -- Initialize --
   useEffect(() => {
@@ -172,8 +180,8 @@ const App: React.FC = () => {
         addLog('ERROR', `步骤 ${index+1} 失败: ${result?.message}`);
     }
 
-    // Schedule next step (variable speed)
-    setTimeout(() => processStep(index + 1, testCase), 800); 
+    // Schedule next step (variable speed using REF)
+    setTimeout(() => processStep(index + 1, testCase), delayRef.current); 
   };
 
   // -- Metrics --
@@ -450,6 +458,30 @@ const App: React.FC = () => {
                       <option key={tc.id} value={tc.id}>{tc.name}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Speed Control */}
+                <div className="mb-3 px-1">
+                   <div className="flex justify-between text-[9px] text-slate-400 mb-1.5 font-medium uppercase tracking-wider">
+                      <span className="flex items-center gap-1"><Rabbit className="w-3 h-3" /> 快</span>
+                      <span className="text-emerald-400">{delay} ms</span>
+                      <span className="flex items-center gap-1">慢 <Turtle className="w-3 h-3" /></span>
+                   </div>
+                   <input
+                      type="range"
+                      min="100"
+                      max="1500"
+                      step="100"
+                      value={1600 - delay} // Invert: Left=Fast, Right=Slow? No.
+                      // Usually Right is "More". 
+                      // If I want "Speed": Right = Faster.
+                      // If I want "Delay": Right = Slower.
+                      // Let's do: Right = Faster.
+                      // Value: 100 (Slow) -> 1500 (Fast)
+                      // Delay = 1600 - value.
+                      onChange={(e) => setDelay(1600 - parseInt(e.target.value))}
+                      className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 transition-all"
+                    />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
