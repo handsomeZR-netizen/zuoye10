@@ -19,6 +19,69 @@ export const IntroTour: React.FC<IntroTourProps> = ({ steps, isOpen, onClose }) 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
+  // Calculate smart position that stays within viewport
+  const calculatePosition = (placement: string | undefined, rect: DOMRect | null) => {
+    if (!rect) {
+      return { top: '50%', left: '50%', x: '-50%', y: '-50%' };
+    }
+
+    const cardWidth = 384; // max-w-sm = 24rem = 384px
+    const cardHeight = 300; // approximate height
+    const gap = 20;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let top: number | string = 'auto';
+    let left: number | string = 'auto';
+    let x = 0;
+    let y = 0;
+
+    switch (placement) {
+      case 'bottom':
+        top = rect.bottom + gap;
+        left = Math.max(gap, Math.min(rect.left, viewportWidth - cardWidth - gap));
+        // Fallback to top if no space below
+        if (top + cardHeight > viewportHeight - gap) {
+          top = Math.max(gap, rect.top - cardHeight - gap);
+        }
+        break;
+
+      case 'top':
+        top = Math.max(gap, rect.top - cardHeight - gap);
+        left = Math.max(gap, Math.min(rect.left, viewportWidth - cardWidth - gap));
+        // Fallback to bottom if no space above
+        if (top < gap) {
+          top = rect.bottom + gap;
+        }
+        break;
+
+      case 'right':
+        top = Math.max(gap, Math.min(rect.top, viewportHeight - cardHeight - gap));
+        left = rect.right + gap;
+        // Fallback to left if no space on right
+        if (left + cardWidth > viewportWidth - gap) {
+          left = Math.max(gap, rect.left - cardWidth - gap);
+        }
+        break;
+
+      case 'left':
+        top = Math.max(gap, Math.min(rect.top, viewportHeight - cardHeight - gap));
+        left = Math.max(gap, rect.left - cardWidth - gap);
+        // Fallback to right if no space on left
+        if (left < gap) {
+          left = rect.right + gap;
+        }
+        break;
+
+      default:
+        // Center on target
+        top = Math.max(gap, Math.min(rect.top, viewportHeight - cardHeight - gap));
+        left = Math.max(gap, Math.min(rect.left, viewportWidth - cardWidth - gap));
+    }
+
+    return { top, left, x, y };
+  };
+
   // Helper to update rect based on current step ID
   const updateRect = useCallback(() => {
     if (!isOpen) return;
@@ -139,19 +202,7 @@ export const IntroTour: React.FC<IntroTourProps> = ({ steps, isOpen, onClose }) 
                 animate={{ 
                     opacity: 1, 
                     scale: 1,
-                    // Dynamic Positioning Logic
-                    top: isCenter ? '50%' : (
-                        currentStep.placement === 'bottom' ? targetRect!.bottom + 20 :
-                        currentStep.placement === 'top' ? targetRect!.top - 200 : // adjust roughly
-                        'auto'
-                    ),
-                    left: isCenter ? '50%' : (
-                        currentStep.placement === 'right' ? targetRect!.right + 20 :
-                        currentStep.placement === 'left' ? targetRect!.left - 400 : // adjust roughly
-                        targetRect!.left // Default align left with target
-                    ),
-                    x: isCenter ? '-50%' : 0,
-                    y: isCenter ? '-50%' : 0,
+                    ...calculatePosition(currentStep.placement, targetRect)
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
