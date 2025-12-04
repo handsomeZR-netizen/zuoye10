@@ -15,30 +15,28 @@ export const MemoryBar: React.FC<MemoryBarProps> = ({ freeList, allocatedList })
   const blockVariants = {
     initial: { 
       opacity: 0, 
-      scaleY: 0.3,
-      y: 10
+      scaleX: 0.8
     },
     animate: { 
       opacity: 1, 
-      scaleY: 1,
-      y: 0,
+      scaleX: 1,
       transition: { 
-        type: "spring", 
-        stiffness: 400, 
-        damping: 25,
-        mass: 1
+        type: "spring" as const, 
+        stiffness: 300, 
+        damping: 30,
+        mass: 0.8
       }
     },
     exit: { 
       opacity: 0, 
-      scale: 0.9,
-      transition: { duration: 0.2 } 
+      scaleX: 0.8,
+      transition: { duration: 0.15 } 
     }
   };
 
   return (
     <div className="w-full bg-slate-200/50 p-1.5 rounded-xl border border-slate-300/50 shadow-inner h-36 flex relative overflow-hidden ring-1 ring-slate-900/5 backdrop-blur-sm">
-      <AnimatePresence mode='popLayout'>
+      <AnimatePresence initial={false}>
         {allBlocks.map((block) => {
           const widthPercent = (block.length / TOTAL_MEMORY) * 100;
           const isAllocated = block.type === 'allocated';
@@ -52,6 +50,11 @@ export const MemoryBar: React.FC<MemoryBarProps> = ({ freeList, allocatedList })
               animate="animate"
               exit="exit"
               variants={blockVariants}
+              transition={{ 
+                layout: { type: "spring", stiffness: 400, damping: 35, mass: 1 },
+                opacity: { duration: 0.2 },
+                scaleX: { duration: 0.2 }
+              }}
               className={`
                 h-full relative flex flex-col justify-center items-center text-xs font-medium
                 border-r border-white/10 hover:brightness-105 hover:z-20 transition-all cursor-default group overflow-hidden

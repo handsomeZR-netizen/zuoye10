@@ -191,10 +191,9 @@ export const allocateMemory = (
     if (targetBlock.length === size) {
       newFreeList.splice(targetIndex, 1);
     } else {
-      // Vital for animation: Preserve the ID of the free block so it visually "shrinks"
-      // rather than being replaced by a new block.
+      // Create a new free block with a new ID to avoid animation conflicts
       const remainder: FreeSpace = {
-        ...targetBlock, 
+        id: generateId(),
         startAddress: targetBlock.startAddress + size,
         length: targetBlock.length - size,
         type: 'free'
