@@ -23,13 +23,16 @@ export const IntroTour: React.FC<IntroTourProps> = ({ steps, isOpen, onClose }) 
   const updateRect = useCallback(() => {
     if (!isOpen) return;
     
+    const currentStep = steps[currentStepIndex];
+    if (!currentStep) return;
+    
     // Special case for 'center' placement or missing ID
-    if (steps[currentStepIndex].targetId === 'center') {
+    if (currentStep.targetId === 'center') {
       setTargetRect(null); // No spotlight for center welcome screen
       return;
     }
 
-    const element = document.getElementById(steps[currentStepIndex].targetId);
+    const element = document.getElementById(currentStep.targetId);
     if (element) {
       const rect = element.getBoundingClientRect();
       // Add some padding
@@ -45,17 +48,25 @@ export const IntroTour: React.FC<IntroTourProps> = ({ steps, isOpen, onClose }) 
         y: rect.y - padding,
         toJSON: () => {}
       });
+    } else {
+      // Element not found, fallback to null
+      setTargetRect(null);
     }
   }, [currentStepIndex, isOpen, steps]);
 
-  // Listen for resize and scroll to keep spotlight updated
+  // Update rect when step changes
   useEffect(() => {
     updateRect();
-    window.addEventListener('resize', updateRect);
-    window.addEventListener('scroll', updateRect, true);
+  }, [currentStepIndex, updateRect]);
+
+  // Listen for resize and scroll to keep spotlight updated
+  useEffect(() => {
+    const handleUpdate = () => updateRect();
+    window.addEventListener('resize', handleUpdate);
+    window.addEventListener('scroll', handleUpdate, true);
     return () => {
-      window.removeEventListener('resize', updateRect);
-      window.removeEventListener('scroll', updateRect, true);
+      window.removeEventListener('resize', handleUpdate);
+      window.removeEventListener('scroll', handleUpdate, true);
     };
   }, [updateRect]);
 
@@ -63,9 +74,8 @@ export const IntroTour: React.FC<IntroTourProps> = ({ steps, isOpen, onClose }) 
   useEffect(() => {
     if (isOpen) {
       setCurrentStepIndex(0);
-      updateRect();
     }
-  }, [isOpen, updateRect]);
+  }, [isOpen]);
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
