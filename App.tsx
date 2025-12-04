@@ -384,11 +384,11 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Grid - 3 Column Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         
-        {/* Left Control Sidebar */}
-        <div className="lg:col-span-3 space-y-6">
+        {/* Left Column: Control Panel */}
+        <div className="xl:col-span-3 space-y-6">
             
             {/* Algorithm Selection */}
             <div id="tour-algo" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -485,50 +485,10 @@ const App: React.FC = () => {
                     </button>
                 </div>
             </div>
-
-            {/* Test Case Runner */}
-            <div id="tour-automation" className="bg-gradient-to-br from-slate-900 to-slate-800 p-5 rounded-2xl shadow-lg text-white">
-                <SectionHeader icon={<Play className="text-emerald-400" />} title="自动化测试" className="text-slate-200" />
-                
-                <div className="mb-4">
-                  <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">选择案例</label>
-                  <select 
-                    value={selectedTestCaseId}
-                    onChange={(e) => setSelectedTestCaseId(e.target.value)}
-                    disabled={isSimulating}
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg p-2 outline-none focus:border-emerald-500 transition-colors"
-                  >
-                    {TEST_CASES.map(tc => (
-                      <option key={tc.id} value={tc.id}>{tc.name}</option>
-                    ))}
-                  </select>
-                  <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
-                    {TEST_CASES.find(t => t.id === selectedTestCaseId)?.description}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <button 
-                        onClick={runSimulation}
-                        disabled={isSimulating}
-                        className={`col-span-2 ${isSimulating ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-900/20'} py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2`}
-                    >
-                        {isSimulating ? <RotateCcw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
-                        {isSimulating ? '执行中...' : '开始运行'}
-                    </button>
-                    <button 
-                        onClick={resetMemory}
-                        disabled={isSimulating}
-                        className="col-span-2 bg-white/10 hover:bg-white/20 text-slate-200 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2"
-                    >
-                        <RotateCcw className="w-3 h-3" /> 重置系统
-                    </button>
-                 </div>
-            </div>
         </div>
 
-        {/* Right Content */}
-        <div className="lg:col-span-9 space-y-6">
+        {/* Center Column: Visualization & Stats */}
+        <div className="xl:col-span-6 space-y-6">
             
             {/* Visualization Bar */}
             <div id="tour-viz" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -555,35 +515,79 @@ const App: React.FC = () => {
 
             {/* Stats Tables */}
             <StatsPanel freeList={freeList} allocatedList={allocatedList} />
+        </div>
 
-            {/* Logs Panel (Collapsible) */}
+        {/* Right Column: Automation & Logs */}
+        <div className="xl:col-span-3 space-y-6">
+            
+            {/* Test Case Runner */}
+            <div id="tour-automation" className="bg-gradient-to-br from-slate-900 to-slate-800 p-4 rounded-2xl shadow-lg text-white">
+                <SectionHeader icon={<Play className="text-emerald-400" />} title="自动化测试" className="text-slate-200" />
+                
+                <div className="mb-3">
+                  <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">选择案例</label>
+                  <select 
+                    value={selectedTestCaseId}
+                    onChange={(e) => setSelectedTestCaseId(e.target.value)}
+                    disabled={isSimulating}
+                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 outline-none focus:border-emerald-500 transition-colors"
+                  >
+                    {TEST_CASES.map(tc => (
+                      <option key={tc.id} value={tc.id}>{tc.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed">
+                    {TEST_CASES.find(t => t.id === selectedTestCaseId)?.description}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                    <button 
+                        onClick={runSimulation}
+                        disabled={isSimulating}
+                        className={`w-full ${isSimulating ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-900/20'} py-2 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2`}
+                    >
+                        {isSimulating ? <RotateCcw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                        {isSimulating ? '执行中...' : '开始运行'}
+                    </button>
+                    <button 
+                        onClick={resetMemory}
+                        disabled={isSimulating}
+                        className="w-full bg-white/10 hover:bg-white/20 text-slate-200 py-1.5 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1.5"
+                    >
+                        <RotateCcw className="w-3 h-3" /> 重置系统
+                    </button>
+                 </div>
+            </div>
+
+            {/* Logs Panel */}
             <div id="tour-logs" className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                 <div 
-                    className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors"
+                    className="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors"
                     onClick={() => setIsLogsOpen(!isLogsOpen)}
                 >
                     <div className="flex items-center gap-2">
-                        <Terminal className="w-5 h-5 text-slate-500" />
-                        <span className="font-bold text-slate-700">系统操作日志</span>
-                        <span className="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full">{logs.length}</span>
+                        <Terminal className="w-4 h-4 text-slate-500" />
+                        <span className="font-bold text-slate-700 text-xs">系统日志</span>
+                        <span className="bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded-full">{logs.length}</span>
                     </div>
-                    {isLogsOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                    {isLogsOpen ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
                 </div>
                 
                 <AnimatePresence>
                     {isLogsOpen && (
                         <motion.div 
                             initial={{ height: 0 }}
-                            animate={{ height: 240 }}
+                            animate={{ height: 320 }}
                             exit={{ height: 0 }}
                             className="bg-slate-900 overflow-hidden"
                         >
-                            <div className="h-full overflow-y-auto p-4 font-mono text-xs space-y-1.5 custom-scrollbar">
-                                {logs.length === 0 && <div className="text-slate-600 italic text-center py-10">暂无日志记录...</div>}
+                            <div className="h-full overflow-y-auto p-3 font-mono text-[10px] space-y-1 custom-scrollbar">
+                                {logs.length === 0 && <div className="text-slate-600 italic text-center py-10 text-xs">暂无日志...</div>}
                                 {logs.map((log) => (
-                                    <div key={log.id} className="flex gap-4 border-l-2 border-slate-700 pl-3 py-0.5 hover:bg-white/5 transition-colors rounded-r">
-                                        <span className="text-slate-500 w-16 shrink-0">{log.timestamp}</span>
-                                        <span className={`font-bold w-24 shrink-0 
+                                    <div key={log.id} className="flex gap-2 border-l-2 border-slate-700 pl-2 py-0.5 hover:bg-white/5 transition-colors rounded-r">
+                                        <span className="text-slate-500 w-14 shrink-0">{log.timestamp}</span>
+                                        <span className={`font-bold w-16 shrink-0 
                                             ${log.action === 'ALLOCATE' ? 'text-blue-400' : ''}
                                             ${log.action === 'DEALLOCATE' ? 'text-emerald-400' : ''}
                                             ${log.action === 'COMPACT' ? 'text-indigo-400' : ''}
@@ -592,8 +596,7 @@ const App: React.FC = () => {
                                         `}>
                                             {log.action}
                                         </span>
-                                        <span className="text-slate-300">{log.message}</span>
-                                        {log.details && <span className="text-slate-500 hidden sm:inline"> | {log.details}</span>}
+                                        <span className="text-slate-300 break-all">{log.message}</span>
                                     </div>
                                 ))}
                             </div>
