@@ -391,26 +391,26 @@ const App: React.FC = () => {
         <div className="xl:col-span-3 space-y-6">
             
             {/* Algorithm Selection */}
-            <div id="tour-algo" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div id="tour-algo" className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
                 <SectionHeader icon={<Settings />} title="分配算法" />
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-1.5">
                     {(['First Fit', 'Best Fit', 'Worst Fit', 'Next Fit'] as AlgorithmType[]).map((algo) => (
                         <button
                             key={algo}
                             onClick={() => setAlgorithm(algo)}
                             disabled={isSimulating}
-                            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all relative overflow-hidden group ${
+                            className={`px-2 py-1.5 rounded-md text-[10px] font-bold transition-all relative overflow-hidden group text-center ${
                                 algorithm === algo 
-                                ? 'bg-slate-800 text-white shadow-lg' 
+                                ? 'bg-slate-800 text-white shadow-md' 
                                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                             }`}
                         >
-                            <div className="relative z-10 flex justify-between items-center">
-                                {algo === 'First Fit' && '最先适应 (First Fit)'}
-                                {algo === 'Best Fit' && '最佳适应 (Best Fit)'}
-                                {algo === 'Worst Fit' && '最坏适应 (Worst Fit)'}
-                                {algo === 'Next Fit' && '循环首次 (Next Fit)'}
-                                {algorithm === algo && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                            <div className="relative z-10 flex items-center justify-center gap-1">
+                                {algo === 'First Fit' && 'First Fit'}
+                                {algo === 'Best Fit' && 'Best Fit'}
+                                {algo === 'Worst Fit' && 'Worst Fit'}
+                                {algo === 'Next Fit' && 'Next Fit'}
+                                {algorithm === algo && <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />}
                             </div>
                         </button>
                     ))}
